@@ -33,7 +33,14 @@ class RestappController extends Controller
      */
     public function create()
     {
-        //
+        $user = User::find(1);
+        $movies = $user->movies;
+        
+        $data = [
+            'movies' => $movies,
+        ];
+        
+        return view('rest.create',$data);
     }
 
     /**
@@ -44,7 +51,25 @@ class RestappController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validate($request,[
+            'url' => 'required|max:11',
+            'comment' => 'max:36',
+        ]);
+
+        User::find(1)->movies()->create([
+            'url' => $request->url,
+            'comment' => $request->comment,
+        ]);
+
+        $movies = User::find(1)->movies;
+        
+        return response()->json(
+            [
+                'movies' => $movies
+            ],
+            200,[],
+            JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT
+        );
     }
 
     /**
@@ -55,7 +80,15 @@ class RestappController extends Controller
      */
     public function show($id)
     {
-        //
+        $user = User::find($id);
+        $movies = $user->movies;
+        return response()->json(
+            [
+                'user' => $user,
+            ],
+            200,[],
+            JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT
+        );
     }
 
     /**
@@ -89,6 +122,21 @@ class RestappController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $movie = Movie::find($id);
+        $user = $movie->user;
+        
+        if ($user->id == 1) {
+            $movie->delete();
+        }
+        
+        $movies = $user->movies;
+
+        return response()->json(
+            [
+                'movies' => $movies
+            ],
+            200,[],
+            JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT
+        );
     }
 }
