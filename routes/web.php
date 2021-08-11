@@ -28,6 +28,8 @@ Route::group(['prefix' => 'users/{id}'], function () {
     Route::get('followers', 'UsersController@followers')->name('followers');
     });
 
+Route::resource('rest','RestappController', ['only' => ['index', 'show', 'create', 'store', 'destroy']]);
+
 Route::group(['middleware' => 'auth'], function () {
     Route::put('users', 'UsersController@rename')->name('rename');
     // チャンネル名・ユーザ名を変更する「rename」というルーティング
@@ -38,7 +40,8 @@ Route::group(['middleware' => 'auth'], function () {
     });
     
     Route::resource('movies', 'MoviesController', ['only' => ['create', 'store', 'destroy']]);
-}); // ここでは、Route::groupでルーティングのグループを作成して、その時に['middleware' => 'auth']として、ログイン認証を通ったユーザのみが、その内部のルーティングにアクセスできるようにしています。
+}); 
 
+// ここでは、Route::groupでルーティングのグループを作成して、その時に['middleware' => 'auth']として、ログイン認証を通ったユーザのみが、その内部のルーティングにアクセスできるようにしています。
 // Route::resource()で、７つのルーティングの短縮形となるが、
 // あえて['only' => ['create', 'store', 'destroy']]と記述して、実際にルートとして設定するアクションを限定している。
