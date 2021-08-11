@@ -31,4 +31,50 @@ class User extends Authenticatable
     {
         return $this->hasMany(Movie::class);
     }
+    
+    public function followings()
+    {
+        return $this->belongsToMany(User::class, 'user_follow', 'user_id', 'follow_id')->withTimestamps();
+    }
+
+    public function followers()
+    {
+        return $this->belongsToMany(User::class, 'user_follow', 'follow_id', 'user_id')->withTimestamps();
+    }
+
+    public function is_following($userId)
+    {
+        return $this->followings()->where('follow_id', $userId)->exists();
+    }
+    
+    public function follow($userId)
+    {
+        // すでにフォロー済みではないか？
+        $existing = $this->is_following($userId);
+        // フォローする相手がユーザ自身ではないか？
+        $myself = $this->id == $userId;
+    
+        // フォロー済みではない、かつフォロー相手がユーザ自身ではない場合、フォロー
+        if (!$existing && !$myself) {
+            $this->followings()->attach($userId);
+        }
+    }
+    
+    // 最初に記述されているis_following()関数により、フォロー対象のユーザIDが、すでにフォローしているfollow_idと重複していないかどうかを判定し
+    // 次に、フォロー対象のユーザIDがユーザ自分自身のIDと一致しているかどうかを判定します。
+    
+    public function unfollow($userId)
+    {
+        // すでにフォロー済みではないか？
+        $existing = $this->is_following($userId);
+        // フォローする相手がユーザ自身ではないか？
+        $myself = $this->id == $userId;
+    
+        // すでにフォロー済みならば、フォローを外す
+        if ($existing && !$myself) {
+            $this->followings()->detach($userId);
+        }
+    }
+    
+    // 便利なコマンドであるattach()関数とdetach()関数を用いることで、中間テーブルのレコードを簡単に作成・消去することが可能です。
 }

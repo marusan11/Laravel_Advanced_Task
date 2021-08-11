@@ -11,5 +11,8 @@ class Movie extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+        // 「MovieモデルがUserモデルに所属している」
     }
 }
+
+// fillable変数を定義することで３つのカラム（'user_id','url','comment'）を一度に入力→保存できる
